@@ -7,133 +7,168 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(),
+      debugShowCheckedModeBanner: false,
+      title: 'Product Catalog',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ProductList(),
     );
   }
 }
+class Product {
+  final String name;
+  final double price;
+  int counter;
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+  Product({required this.name, required this.price, this.counter = 0});
+}
 
-  static const List<String> imageLink = [
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCP_zp4gJwZzqIxG7ZDf9bd6NFS_gKoU9Ing&usqp=CAU',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCP_zp4gJwZzqIxG7ZDf9bd6NFS_gKoU9Ing&usqp=CAU',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCP_zp4gJwZzqIxG7ZDf9bd6NFS_gKoU9Ing&usqp=CAU',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCP_zp4gJwZzqIxG7ZDf9bd6NFS_gKoU9Ing&usqp=CAU',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCP_zp4gJwZzqIxG7ZDf9bd6NFS_gKoU9Ing&usqp=CAU',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCP_zp4gJwZzqIxG7ZDf9bd6NFS_gKoU9Ing&usqp=CAU',
-  ];
+final List<Product> products = [
+  Product(name: 'Pant', price: 500),
+  Product(name: 'Shirt', price: 600),
+  Product(name: 'Shoe', price: 700),
+  Product(name: 'Watch', price: 200),
+  Product(name: 'Laptop', price: 150),
+  Product(name: 'Mobile', price: 300),
+  Product(name: 'Speaker', price: 400),
+  Product(name: 'Camera', price: 800),
+  Product(name: 'LedTV', price: 900),
+  Product(name: 'Monitor', price: 100),
+];
 
+class ProductList extends StatefulWidget {
+  const ProductList({super.key});
+
+  @override
+  ProductListState createState() => ProductListState();
+}
+
+class ProductListState extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Photo Gallery'),
+        title: const Text('Product List'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Welcome to My Photo Gallery!',
-                style: TextStyle(fontSize: 24.0),
-              ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.shopping_cart_rounded),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CartScreen(products: products),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search for photos',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: imageLink.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 30,
-                    crossAxisSpacing: 30,
-                  ),
-                  itemBuilder: (context, index) {
-                    return GridTile(
-                      footer: Container(
-                        color: Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Center(
-                              child: Text(
-                            "Photo $index",
-                            style: const TextStyle(fontSize: 20),
-                          )),
-                        ),
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Image $index clicked!'),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: 150,
-                          color: Colors.grey,
-                          child: Image.network(
-                            imageLink[index],
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            SizedBox(
-              child: ListView.builder(
-                itemCount: 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, iindex) => ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(imageLink[iindex]),
-                  ),
-                  title: Text('Photo ${iindex + 1}'),
-                  subtitle: Text('Description of photo ${iindex + 1}'),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            FloatingActionButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Photos Uploaded Successfully!'),
-                  ),
-                );
-              },
-              child: const Icon(Icons.upload),
-            ),
-          ],
-        ),
+          );
+        },
+      ),
+      body: ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          return ProductItem(
+            product: products[index],
+          );
+        },
       ),
     );
   }
 }
+
+class ProductItem extends StatefulWidget {
+  final Product product;
+
+  const ProductItem({super.key, required this.product});
+
+  @override
+  ProductItemState createState() => ProductItemState();
+}
+
+class ProductItemState extends State<ProductItem> {
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(widget.product.name),
+      subtitle: Text('\$${widget.product.price}'),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Count: ${widget.product.counter}'),
+          SizedBox(
+            height: 30,
+            width: 100,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  widget.product.counter++;
+                  if (widget.product.counter == 5) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Congratulations!'),
+                          content:
+                          Text('You\'ve bought 5 ${widget.product.name}!'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                });
+              },
+              child: const Text('Buy Now'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CartScreen extends StatelessWidget {
+  final List<Product> products;
+
+  const CartScreen({super.key, required this.products});
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = Cart();
+    for (var product in products) {
+      if (product.counter > 0) {
+        cart.items[product] = product.counter;
+      }
+    }
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Cart'),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Text("${cart.items.keys.length} Product in Cart"),
+        )
+    );
+  }
+}
+
+class Cart {
+  final Map<Product, int> items = {};
+
+  double get totalPrice {
+    double total = 0.0;
+    items.forEach((product, quantity) {
+      total += product.price * quantity;
+    });
+    return total;
+  }
+}
+
