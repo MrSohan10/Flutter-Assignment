@@ -9,166 +9,102 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Product Catalog',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return const MaterialApp(
+      home: Scaffold(
+        body: Homepage(),
       ),
-      home: const ProductList(),
     );
   }
 }
-class Product {
-  final String name;
-  final double price;
-  int counter;
 
-  Product({required this.name, required this.price, this.counter = 0});
-}
+class Homepage extends StatelessWidget {
+  const Homepage({super.key});
 
-final List<Product> products = [
-  Product(name: 'Pant', price: 500),
-  Product(name: 'Shirt', price: 600),
-  Product(name: 'Shoe', price: 700),
-  Product(name: 'Watch', price: 200),
-  Product(name: 'Laptop', price: 150),
-  Product(name: 'Mobile', price: 300),
-  Product(name: 'Speaker', price: 400),
-  Product(name: 'Camera', price: 800),
-  Product(name: 'LedTV', price: 900),
-  Product(name: 'Monitor', price: 100),
-];
-
-class ProductList extends StatefulWidget {
-  const ProductList({super.key});
-
-  @override
-  ProductListState createState() => ProductListState();
-}
-
-class ProductListState extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
+    final orientation = MediaQuery.orientationOf(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product List'),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.shopping_cart_rounded),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CartScreen(products: products),
-            ),
-          );
-        },
-      ),
-      body: ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          return ProductItem(
-            product: products[index],
-          );
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: const Text("Profile"),
+        ),
+        body: SingleChildScrollView(
+            child: orientation == Orientation.portrait
+                ? const Column(
+                    children: [ProfilePic(), Programing()],
+                  )
+                : const Row(
+                    children: [ProfilePic(), Programing()],
+                  )));
   }
 }
 
-class ProductItem extends StatefulWidget {
-  final Product product;
+class Programing extends StatelessWidget {
+  const Programing({
+    super.key,
+  });
 
-  const ProductItem({super.key, required this.product});
-
-  @override
-  ProductItemState createState() => ProductItemState();
-}
-
-class ProductItemState extends State<ProductItem> {
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(widget.product.name),
-      subtitle: Text('\$${widget.product.price}'),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    final orientation = MediaQuery.orientationOf(context);
+    final size = MediaQuery.sizeOf(context);
+    return SizedBox(
+      width: orientation == Orientation.portrait
+          ? size.width/1.05
+          : size.width / 1.7,
+      child: Column(
         children: [
-          Text('Count: ${widget.product.counter}'),
-          SizedBox(
-            height: 30,
-            width: 100,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  widget.product.counter++;
-                  if (widget.product.counter == 5) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Congratulations!'),
-                          content:
-                          Text('You\'ve bought 5 ${widget.product.name}!'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                });
-              },
-              child: const Text('Buy Now'),
+          const Center(
+              child: Text(
+            "Mr. Sohan",
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          )),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
             ),
           ),
+          SizedBox(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing:
+                    10.0, // Adjust this value to reduce main axis spacing
+                crossAxisSpacing: 10.0,
+              ),
+              itemCount: 6,
+              itemBuilder: (context, index) {
+                return Image.network(
+                    'https://img.freepik.com/premium-photo/cartoon-character-with-laptop-his-lap_911330-215.jpg');
+              },
+            ),
+          )
         ],
       ),
     );
   }
 }
 
-class CartScreen extends StatelessWidget {
-  final List<Product> products;
-
-  const CartScreen({super.key, required this.products});
+class ProfilePic extends StatelessWidget {
+  const ProfilePic({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final cart = Cart();
-    for (var product in products) {
-      if (product.counter > 0) {
-        cart.items[product] = product.counter;
-      }
-    }
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Cart'),
-          centerTitle: true,
+    final orientation = MediaQuery.of(context).orientation;
+    final size = MediaQuery.of(context).size;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: CircleAvatar(
+          radius: orientation == Orientation.portrait ? 180 : size.width / 6,
+          backgroundImage: const NetworkImage(
+              "https://t4.ftcdn.net/jpg/02/73/46/99/360_F_273469972_ESU9Rq3eIpSrK3xddlIEyDh7vrslbiGg.jpg"),
         ),
-        body: Center(
-          child: Text("${cart.items.keys.length} Product in Cart"),
-        )
+      ),
     );
   }
 }
-
-class Cart {
-  final Map<Product, int> items = {};
-
-  double get totalPrice {
-    double total = 0.0;
-    items.forEach((product, quantity) {
-      total += product.price * quantity;
-    });
-    return total;
-  }
-}
-
