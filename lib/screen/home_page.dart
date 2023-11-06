@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_assignment/class/product.dart';
-import '../style/button_style.dart';
-import '../style/text_style.dart';
+import '../style.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,151 +9,224 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
- Product product = Product();
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
+  final TextEditingController _controller3 = TextEditingController();
+  final TextEditingController _controller4 = TextEditingController();
+  final GlobalKey<FormState> _fromKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _fromKey2 = GlobalKey<FormState>();
+  List<Item> itemList = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 20,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          actions: [
-            const Icon(
-              Icons.search,
-              color: Colors.black,
-            )
-          ],
-        ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-                flex: 6,
-                child: Text(
-                  "My Bag",
-                  style: headerTextStyle(),
-                )),
-            Expanded(
-              flex: 80,
-              child: ListView.separated(
-                itemCount: product.productList.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      leading: Container(
-                          height: 120,
-                          width: 60,
-                          child: Image.network(
-                            product.productList[index]["img"],
-                            fit: BoxFit.fill,
-                          )),
-                      title: Text(product.productList[index]["title"]),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text("Color: ${product.productList[index]["color"]}"),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text("Color: ${product.productList[index]["size"]}"),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (product.productList[index]["qty"] > 0) {
-                                    product.productList[index]["qty"]--;
-                                    setState(() {});
-                                    product.totalAmount = product.totalAmount -
-                                        int.parse(product.productList[index]["price"]
-                                            .toString());
-                                    setState(() {});
-                                  }
-                                },
-                                child: const Icon(
-                                  Icons.remove,
-                                  color: Colors.grey,
-                                ),
-                                style: elevatedButtonStyle(),
-                              ),
-                              Text("${product.productList[index]["qty"].toString()}"),
-                              ElevatedButton(
-                                onPressed: () {
-                                  product.productList[index]["qty"]++;
-                                  setState(() {});
-                                  product.totalAmount = product.totalAmount +
-                                      int.parse(
-                                          product.productList[index]["price"].toString());
-                                  setState(() {});
-                                },
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.grey,
-                                ),
-                                style: elevatedButtonStyle(),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      trailing: Column(
-                        children: [
-                          const Icon(Icons.more_vert),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          Text("${product.productList[index]["price"]}\$")
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder: (_, __) => const Divider(),
-              ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        toolbarHeight: 40,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.search_rounded,
+              color: Colors.blue,
             ),
-            Expanded(
-              flex: 14,
-              child:
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          )
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Form(
+            key: _fromKey,
+            child: Expanded(
+              flex: 35,
+              child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Total amount:     "),
-                      Text(
-                        "${product.totalAmount.toString()}\$",
-                        style: subTextStyle(),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: 300,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        product.totalAmount == 0
-                            ? mySnackBar("add product")
-                            : mySnackBar("Congratulation");
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    child: TextFormField(
+                      controller: _controller1,
+                      decoration: formFieldStyle("Title", "Enter title"),
+                      validator: (value) {
+                        if (value?.trim().isEmpty ?? true) {
+                          return "Enter Value";
+                        }
                       },
-                      child: const Text("Check Out"),
-                      style: elevatedButtonStyle2(),
                     ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    child: TextFormField(
+                      controller: _controller2,
+                      decoration:
+                      formFieldStyle("Description", "Enter Description"),
+                      validator: (value) {
+                        if (value?.trim().isEmpty ?? true) {
+                          return "Enter Value";
+                        }
+                      },
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_fromKey.currentState!.validate()) {
+                        addItem();
+                      }
+                    },
+                    child: Text("Add"),
+                    style: elevatedButtonstyle(),
                   )
                 ],
               ),
-            )
-          ],
-        ));
+            ),
+          ),
+          Expanded(
+            flex: 65,
+            child: ListView.separated(
+              itemCount: itemList.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  color: Colors.white30,
+                  child: ListTile(
+                    onLongPress: () {
+                      myAlertDialog(index);
+                    },
+                    leading: CircleAvatar(backgroundColor: Colors.deepOrange,),
+                    title: Text(itemList[index].title),
+                    subtitle: Text(itemList[index].descriptions),
+                    trailing: Icon(Icons.arrow_forward),
+                  ),
+                );
+              },
+              separatorBuilder: (_, __) => Divider(
+                height: 4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-  mySnackBar(text) {
-    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(text),
-    ));
+
+  addItem() {
+    itemList.add(Item(_controller1.text.trim(), _controller2.text.trim()));
+    _controller1.clear();
+    _controller2.clear();
+    setState(() {});
   }
+
+  myAlertDialog(index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Alert'),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        updateItem(index);
+                      },
+                      child: Text("Edit")),
+                  TextButton(
+                      onPressed: () {
+                        deleteItem(index);
+                      },
+                      child: Text("Delete")),
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
+  deleteItem(index) {
+    itemList.removeAt(index);
+    Navigator.pop(context);
+    setState(() {});
+  }
+
+  updateItem(index) {
+    _controller3.text = itemList[index].title;
+    _controller4.text = itemList[index].descriptions;
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      context: context,
+      builder: (context) {
+        return Form(
+          key: _fromKey2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Upadate title & details",
+                    style: textStyle(),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(Icons.clear))
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                child: TextFormField(
+                  controller: _controller3,
+                  decoration: formFieldStyle("Title", "Enter title"),
+                  validator: (value) {
+                    if (value?.trim().isEmpty ?? true) {
+                      return "Enter Value";
+                    }
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                child: TextFormField(
+                  controller: _controller4,
+                  decoration:
+                  formFieldStyle("Description", "Enter Description"),
+                  validator: (value) {
+                    if (value?.trim().isEmpty ?? true) {
+                      return "Enter Value";
+                    }
+                  },
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_fromKey2.currentState!.validate()) {
+                    itemList[index].title = _controller3.text.trim();
+                    itemList[index].descriptions = _controller4.text.trim();
+                    setState(() {});
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text("Update"),
+                style: elevatedButtonstyle(),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Item {
+  String title;
+  String descriptions;
+
+  Item(this.title, this.descriptions);
 }
