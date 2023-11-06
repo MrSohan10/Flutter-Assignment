@@ -1,18 +1,19 @@
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_assignment/Screen/photo_gallery.dart';
+import 'package:flutter_assignment/screen/home_page.dart';
 
 void main() {
-runApp(const PhotoGallery());
+  runApp(const MyApp());
 }
 
-class PhotoGallery extends StatelessWidget {
-  const PhotoGallery({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return  const MaterialApp(
-      home: PhotoGalleryList() ,
+    return const MaterialApp(
+      title: "Assignment 9",
+      home: const HomePage(),
     );
   }
 }
